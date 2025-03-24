@@ -89,8 +89,8 @@ export const allHackathons = [
     poster_image_url: "https://incubator.ucf.edu/wp-content/uploads/2023/07/artificial-intelligence-new-technology-science-futuristic-abstract-human-brain-ai-technology-cpu-central-processor-unit-chipset-big-data-machine-learning-cyber-mind-domination-generative-ai-scaled-1-1500x1000.jpg",
     file_attachment_url: "https://example.com/attachment.pdf",
     grade_eligible: "1-10, UG, PG",
-    start_date: "2023-11-15",
-    end_date: "2023-11-30"
+    start_date: "2025-03-15",
+    end_date: "2026-04-30"
   },
   5: {
     name: "IoT Solutions Expo",
@@ -144,8 +144,8 @@ export const allHackathons = [
     poster_image_url: "https://incubator.ucf.edu/wp-content/uploads/2023/07/artificial-intelligence-new-technology-science-futuristic-abstract-human-brain-ai-technology-cpu-central-processor-unit-chipset-big-data-machine-learning-cyber-mind-domination-generative-ai-scaled-1-1500x1000.jpg",
     file_attachment_url: "https://example.com/attachment.pdf",
     grade_eligible: "1-10, UG, PG",
-    start_date: "2024-04-05",
-    end_date: "2024-04-20"
+    start_date: "2025-04-05",
+    end_date: "2025-04-20"
   }
   };
   

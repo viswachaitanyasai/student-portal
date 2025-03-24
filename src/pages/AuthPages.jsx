@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaEye, FaEyeSlash, FaHome } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import { loginUser, registerUser } from "../utils/Cookie";
 
 function AuthPages() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +18,7 @@ function AuthPages() {
   const [containerHeight, setContainerHeight] = useState("auto");
   const containerRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Store the current height before toggling
   const toggleAuthMode = () => {
@@ -50,19 +52,23 @@ function AuthPages() {
     setLoading(true);
     try {
       if (isLogin) {
-        // API call to login
+        // Use the login function from Cookie.jsx
         const response = await loginUser({ email, password });
-        localStorage.setItem("authToken", response.cookie);
         toast.success("Login successful!");
-        navigate("/dashboard");
+        
+        // Navigate to the return URL or all-hackathons page
+        const from = location.state?.from?.pathname || "/all-hackathons";
+        navigate(from);
       } else {
-        // API call to register
+        // Use the register function from Cookie.jsx
         await registerUser({ name, email, password, grade, district, state });
-        toast.success("Registration successful! Verify your email.");
-        navigate("/otp-verification", { state: { email } });
+        toast.success("Registration successful!");
+        
+        // Switch to login view
+        setIsLogin(true);
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || "Operation failed. Try again.");
+      toast.error("Operation failed. Try again.");
     } finally {
       setLoading(false);
     }

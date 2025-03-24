@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaCheckCircle, FaTimesCircle, FaTimes } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaEye, FaCheckCircle, FaTimesCircle, FaTimes, FaSignInAlt } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { allHackathons } from '../controllers/HackathonData';
+import { isAuthenticated } from '../utils/Cookie';
+import { toast } from 'react-toastify';
 
-function AllHackathon() {
+function AllHackathonPages() {
   const navigate = useNavigate();
+  const authenticated = isAuthenticated();
   const [showModal, setShowModal] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
   const [passcode, setPasscode] = useState("");
@@ -23,8 +26,19 @@ function AllHackathon() {
   }, [notification]);
 
   const handleJoinWithCode = () => {
+    if (!authenticated) {
+      // Redirect to auth page if not logged in
+      setNotification({
+        show: true,
+        success: false,
+        message: "Please sign in to join a hackathon"
+      });
+      navigate('/auth', { state: { from: '/all-hackathons' } });
+      return;
+    }
+    
     if (inviteCode.trim() === "") {
-      alert("Please enter an invite code");
+      toast.error("Please enter an invite code");
       return;
     }
     setShowModal(true);
@@ -68,35 +82,21 @@ function AllHackathon() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation Bar */}
-      <nav className="bg-gray-800 p-4 shadow-md">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-cyan-400">EduHack</h1>
-          </div>
-          <button 
-            className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-            onClick={() => navigate('/my-hackathons')}
-          >
-            My Hackathons
-          </button>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">All Hackathons</h1>
-          <div className="flex items-center space-x-2">
+
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold mb-4 md:mb-0">All Hackathons</h1>
+          <div className="flex items-center space-x-2 w-full md:w-auto">
             <input
               type="text"
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value)}
               placeholder="Enter invite code"
-              className="p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 w-full md:w-auto"
             />
             <button 
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
+              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer whitespace-nowrap"
               onClick={handleJoinWithCode}
             >
               Join with Code
@@ -207,4 +207,4 @@ function AllHackathon() {
   );
 }
 
-export default AllHackathon;
+export default AllHackathonPages;

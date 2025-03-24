@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { hackathonResults } from '../controllers/HackathonResults';
+import { isAuthenticated } from '../utils/Cookie';
+import { toast } from 'react-toastify';
 
 function ViewResult() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
+  const authenticated = isAuthenticated();
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!authenticated) {
+      toast.error("Please sign in to view results");
+      navigate('/auth');
+      return;
+    }
+
     // Simulate fetching data
     setLoading(true);
     try {
@@ -20,7 +30,11 @@ function ViewResult() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, authenticated, navigate]);
+
+  if (!authenticated) {
+    return null; // This prevents any flash of content before redirect
+  }
 
   if (loading) {
     return (
@@ -33,19 +47,6 @@ function ViewResult() {
   if (!result) {
     return (
       <div className="min-h-screen bg-gray-900 text-white">
-        <nav className="bg-gray-800 p-4 shadow-md">
-          <div className="container mx-auto flex justify-between items-center">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-cyan-400">EduHack</h1>
-            </div>
-            <button
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-              onClick={() => navigate('/my-hackathons')}
-            >
-              My Hackathons
-            </button>
-          </div>
-        </nav>
         <div className="container mx-auto py-16 px-4 text-center">
           <h1 className="text-3xl font-bold mb-4">Result Not Found</h1>
           <p className="mb-8">We couldn't find the result for this hackathon.</p>
@@ -76,20 +77,6 @@ function ViewResult() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <nav className="bg-gray-800 p-4 shadow-md">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-cyan-400">EduHack</h1>
-          </div>
-          <button
-            className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-            onClick={() => navigate('/my-hackathons')}
-          >
-            My Hackathons
-          </button>
-        </div>
-      </nav>
-
       <div className="container mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-cyan-400">Hackathon Result</h1>

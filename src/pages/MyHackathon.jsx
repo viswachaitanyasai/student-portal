@@ -72,20 +72,6 @@ function MyHackathon() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Navigation Bar */}
-      <nav className="bg-gray-800 p-4 shadow-md">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-cyan-400">EduHack</h1>
-          </div>
-          <button 
-            className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-            onClick={() => navigate('/all-hackathons')}
-          >
-            All Hackathons
-          </button>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <div className="container mx-auto py-8 px-4">
