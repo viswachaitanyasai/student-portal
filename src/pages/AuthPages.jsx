@@ -133,9 +133,12 @@ function AuthPages() {
                       required
                     >
                       <option value="">Select Grade</option>
-                      {[...Array(10).keys()].map((i) => (
-                        <option key={i + 1} value={`Grade ${i + 1}`}>
-                          Grade {i + 1}
+                      {[
+                        "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", 
+                        "9th", "10th", "11th", "12th"
+                      ].map((grade, index) => (
+                        <option key={index} value={grade}>
+                          {grade}
                         </option>
                       ))}
                       <option value="UG">Undergraduate (UG)</option>

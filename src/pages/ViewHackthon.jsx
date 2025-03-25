@@ -54,7 +54,11 @@ function ViewHackathon() {
 
         // Before the hackathon starts
         if (currentDate < startDate) {
-            return { status: "join", text: "Join", icon: <FaPlus /> };
+            if(!hasJoined){
+                return { status: "join", text: "Join", icon: <FaPlus /> };
+            }else{
+                return { status: "joined", text: "Joined" , icon: <FaLock />};
+            }
         }
 
         // During the hackathon
@@ -82,7 +86,7 @@ function ViewHackathon() {
 
     // Example usage (replace with actual user data)
     const hackathondates = { start_date: hackathon.start_date, end_date: hackathon.end_date };
-    const user = { hasJoined: true, hasSubmitted: false };
+    const user = { hasJoined: true, hasSubmitted: true };
     const { status, text, icon } = getCurrentStatus(hackathondates, user);
 
     // Determine button color
@@ -91,6 +95,8 @@ function ViewHackathon() {
             case "login":
             case "join":
                 return "bg-cyan-600 hover:bg-cyan-700";
+            case "joined":
+                return "bg-gray-600 hover:bg-gray-700";
             case "submit":
                 return "bg-green-600 hover:bg-green-700";
             case "closed":

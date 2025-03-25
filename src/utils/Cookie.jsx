@@ -1,4 +1,3 @@
-// src/utils/Cookie.jsx
 import Cookies from 'js-cookie';
 
 // Cookie management functions
@@ -21,32 +20,39 @@ export const removeAuthCookie = (key) => {
 
 // Authentication functions
 export const loginUser = async ({ email, password }) => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Create a mock auth token
-      const authToken = btoa(`${email}:${Date.now()}`);
-      
-      // Store user data in cookie
-      setAuthCookie('authToken', authToken);
-      setAuthCookie('userData', JSON.stringify({ email }));
-      
-      resolve({ cookie: authToken });
-    }, 1000);
+  // const response = await fetch(`${BACKEND_URL}/api/student/login`, {
+  const response = await fetch(`https://team13-aajv.onrender.com/api/student/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
   });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Login failed");
+  }
+
+  // Store token and student data in cookies
+  setAuthCookie("authToken", data.token);
+  setAuthCookie("userData", JSON.stringify(data.student));
+
+  return data;
 };
 
 export const registerUser = async ({ name, email, password, grade, district, state }) => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Store student data in cookie
-      const studentData = { name, email, grade, district, state, registeredAt: new Date().toISOString() };
-      setAuthCookie('studentData', JSON.stringify(studentData));
-      
-      resolve({ success: true });
-    }, 1000);
+  // const response = await fetch(`${BACKEND_URL}/api/student/register`, {
+  const response = await fetch(`https://team13-aajv.onrender.com/api/student/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password, grade, district, state }),
   });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Registration failed");
+  }
+  
+  return data;
 };
 
 // Authentication status check
@@ -60,7 +66,7 @@ export const getCurrentUser = () => {
   return userData ? JSON.parse(userData) : null;
 };
 
-// Get student data
+// Get student data (if stored separately)
 export const getStudentData = () => {
   const studentData = getAuthCookie('studentData');
   return studentData ? JSON.parse(studentData) : null;
