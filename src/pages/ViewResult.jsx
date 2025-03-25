@@ -33,13 +33,13 @@ function ViewResult() {
   }, [id, authenticated, navigate]);
 
   if (!authenticated) {
-    return null; // This prevents any flash of content before redirect
+    return null; // Prevent any flash of content before redirect
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex justify-center items-center">
-        <div className="text-xl">Loading result...</div>
+        <div className="loader"></div>
       </div>
     );
   }
