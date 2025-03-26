@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaCheckCircle, FaTimesCircle, FaTimes, FaLock, FaUnlock } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaTimes, FaLock, FaUnlock, FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAuthCookie } from '../utils/Cookie';
@@ -142,9 +142,24 @@ function MyHackathon() {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  const getStatus = (start, end) => {
+    const now = new Date();
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    if (now < startDate) return { text: "Upcoming", color: "bg-purple-500" };
+    if (now > endDate) return { text: "Completed", color: "bg-gray-500" };
+    return { text: "Live Now", color: "bg-green-500" };
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <ClipLoader color="#00BFFF" size={60} />
       </div>
     );
@@ -155,181 +170,211 @@ function MyHackathon() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-gray-900 text-white"
+      className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800"
     >
-      <div className="container mx-auto py-12 px-4">
-        {/* Join Hackathon Section */}
+      <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        {/* Join Section */}
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col md:flex-row justify-between items-center mb-12"
+          className="bg-gray-800 rounded-2xl p-8 mb-12 shadow-xl"
         >
-          <h1 className="text-4xl font-bold mb-6 md:mb-0 text-cyan-400">My Hackathons</h1>
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-              placeholder="Enter invite code"
-              className="p-2 bg-gray-800 text-white rounded-l focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-r transition cursor-pointer flex items-center"
-              onClick={handleJoinWithCode}
-              disabled={joining}
-            >
-              {joining ? (
-                <ClipLoader color="#ffffff" size={20} />
-              ) : (
-                <>
-                  <FaUnlock className="mr-2" />
-                  Join with Code
-                </>
-              )}
-            </motion.button>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-center md:text-left">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                My Hackathons
+              </h1>
+              <p className="text-gray-400">Join new challenges or manage existing participations</p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full max-w-xl">
+              <input
+                type="text"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                placeholder="Enter invite code"
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                onClick={handleJoinWithCode}
+                disabled={joining}
+              >
+                {joining ? (
+                  <ClipLoader color="#ffffff" size={20} />
+                ) : (
+                  <>
+                    <FaUnlock className="text-lg" />
+                    Join Hackathon
+                  </>
+                )}
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 
-        {/* Hackathons Listing Section */}
+        {/* Hackathons Grid */}
         <motion.div 
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
         >
           {hackathons.length > 0 ? (
-            hackathons.map((hackathon, index) => (
-              <motion.div
-                key={hackathon._id}
-                onClick={() => navigate(`/view-hackathon/${hackathon._id}`)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-              >
-                <div className="w-full aspect-square">
-                  <img 
-                    src={hackathon.image_url} 
-                    alt={hackathon.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold text-cyan-400 text-center">
-                    {hackathon.title}
-                  </h3>
-                </div>
-              </motion.div>
-            ))
+            hackathons.map((hackathon, index) => {
+              const status = getStatus(hackathon.start_date, hackathon.end_date);
+              return (
+                <motion.div
+                  key={hackathon._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group relative bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/view-hackathon/${hackathon._id}`)}
+                >
+                  <div className="relative aspect-video overflow-hidden rounded-t-2xl">
+                    <img 
+                      src={hackathon.image_url} 
+                      alt={hackathon.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://via.placeholder.com/300?text=Hackathon+Image";
+                      }}
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 p-4">
+                      <span className={`${status.color} text-white px-3 py-1 rounded-full text-sm font-medium`}>
+                        {status.text}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-100 mb-3">{hackathon.title}</h3>
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <FaCalendarAlt className="text-cyan-400 flex-shrink-0" />
+                      <span>{formatDate(hackathon.start_date)} - {formatDate(hackathon.end_date)}</span>
+                    </div>
+                    <p className="text-gray-400 line-clamp-3">{hackathon.description}</p>
+                    <div className="flex justify-end">
+                      <button className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg">
+                        View Details →
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            )
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="col-span-full bg-gray-800 rounded-lg p-8 text-center"
+              className="col-span-full bg-gray-800 rounded-2xl p-8 text-center"
             >
-              <h3 className="text-xl font-semibold text-gray-400 mb-4">You haven't joined any hackathons yet</h3>
-              <p className="text-gray-500 mb-6">Join existing hackathons to get started</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-                onClick={() => navigate('/all-hackathons')}
-              >
-                Browse Hackathons
-              </motion.button>
+              <div className="max-w-md mx-auto">
+                <div className="mb-6 text-cyan-400 text-6xl">・゜゜・。。・゜゜</div>
+                <h3 className="text-2xl font-semibold text-gray-300 mb-4">No Active Hackathons</h3>
+                <p className="text-gray-400 mb-6">Join hackathons using invite codes or browse public challenges</p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl font-medium transition-all"
+                  onClick={() => navigate('/all-hackathons')}
+                >
+                  Explore Hackathons
+                </motion.button>
+              </div>
             </motion.div>
           )}
         </motion.div>
-      </div>
 
-      {/* Passkey Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
+        {/* Passkey Modal */}
+        <AnimatePresence>
+          {showModal && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
             >
-              <h2 className="text-xl font-bold text-cyan-400 mb-4">Enter Passkey</h2>
-              <p className="text-gray-300 mb-4">
-                Please enter the passkey for hackathon with invite code: <span className="font-bold">{inviteCode}</span>
-              </p>
-              <form onSubmit={handleSubmitPasskey}>
-                <div className="mb-4">
-                  <input
-                    type="password"
-                    value={passkey}
-                    onChange={(e) => setPasskey(e.target.value)}
-                    className="w-full p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    placeholder="Enter passkey"
-                    required
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition cursor-pointer"
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-gray-800 rounded-2xl p-8 w-full max-w-md shadow-2xl"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-cyan-400">Secure Access Required</h2>
+                  <button
                     onClick={() => setShowModal(false)}
+                    className="text-gray-400 hover:text-gray-200"
                   >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    type="submit"
-                    className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer flex items-center"
-                  >
-                    <FaLock className="mr-2" />
-                    Join Hackathon
-                  </motion.button>
+                    <FaTimes className="text-xl" />
+                  </button>
                 </div>
-              </form>
+                <form onSubmit={handleSubmitPasskey}>
+                  <div className="mb-6">
+                    <label className="block text-gray-300 mb-2">Passkey for {inviteCode}</label>
+                    <input
+                      type="password"
+                      value={passkey}
+                      onChange={(e) => setPasskey(e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      placeholder="Enter secret passkey"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-all"
+                      onClick={() => setShowModal(false)}
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="submit"
+                      className="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-medium transition-all flex items-center gap-2"
+                    >
+                      <FaLock />
+                      Confirm Join
+                    </motion.button>
+                  </div>
+                </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      {/* Notification */}
-      <AnimatePresence>
-        {notification.show && (
-          <motion.div
-            initial={{ x: "100%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className={`fixed top-20 right-4 p-4 rounded-lg shadow-lg z-50 flex items-center space-x-3 ${notification.success ? "bg-green-600" : "bg-red-600"}`}
-            style={{ maxWidth: "300px" }}
-          >
-            <div className="flex-shrink-0">
-              {notification.success ? (
-                <FaCheckCircle className="text-white text-xl" />
-              ) : (
-                <FaTimesCircle className="text-white text-xl" />
-              )}
-            </div>
-            <div className="flex-grow text-white">{notification.message}</div>
-            <button
-              onClick={() => setNotification({ ...notification, show: false })}
-              className="text-white hover:text-gray-200"
+        {/* Notification */}
+        <AnimatePresence>
+          {notification.show && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className={`fixed bottom-4 right-4 p-4 rounded-xl flex items-center gap-4 ${notification.success ? 'bg-green-600' : 'bg-red-600'} shadow-xl z-50`}
             >
-              <FaTimes />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {notification.success ? (
+                <FaCheckCircle className="text-white text-xl flex-shrink-0" />
+              ) : (
+                <FaTimesCircle className="text-white text-xl flex-shrink-0" />
+              )}
+              <span className="text-white pr-4">{notification.message}</span>
+              <button
+                onClick={() => setNotification({ ...notification, show: false })}
+                className="text-white hover:text-gray-200"
+              >
+                <FaTimes className="text-lg" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
