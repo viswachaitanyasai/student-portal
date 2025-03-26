@@ -21,7 +21,7 @@ export const removeAuthCookie = (key) => {
 // Authentication functions
 export const loginUser = async ({ email, password }) => {
   // const response = await fetch(`${BACKEND_URL}/api/student/login`, {
-  const response = await fetch(`https://team13-aajv.onrender.com/api/student/login`, {
+  const response = await fetch(`https://team13-aajv.onrender.com/api/students/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -41,7 +41,7 @@ export const loginUser = async ({ email, password }) => {
 
 export const registerUser = async ({ name, email, password, grade, district, state }) => {
   // const response = await fetch(`${BACKEND_URL}/api/student/register`, {
-  const response = await fetch(`https://team13-aajv.onrender.com/api/student/register`, {
+  const response = await fetch(`https://team13-aajv.onrender.com/api/students/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password, grade, district, state }),

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { hackathonResults } from '../controllers/HackathonResults';
-import { isAuthenticated } from '../utils/Cookie';
+import { isAuthenticated, getAuthCookie } from '../utils/Cookie';
 import { toast } from 'react-toastify';
 
 function ViewResult() {
@@ -12,28 +11,60 @@ function ViewResult() {
   const authenticated = isAuthenticated();
 
   useEffect(() => {
-    // Check if user is authenticated
     if (!authenticated) {
       toast.error("Please sign in to view results");
       navigate('/auth');
       return;
     }
 
-    // Simulate fetching data
-    setLoading(true);
-    try {
-      // Find the result that matches the id from the URL
-      const foundResult = hackathonResults.find(item => item.id === parseInt(id));
-      setResult(foundResult);
-    } catch (error) {
-      console.error("Error fetching result:", error);
-    } finally {
-      setLoading(false);
-    }
+    const fetchResult = async () => {
+      setLoading(true);
+      try {
+        const token = getAuthCookie("authToken");
+        const response = await fetch(`https://team13-aajv.onrender.com/api/students/results/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch evaluation result");
+        }
+
+        const data = await response.json();
+        // Destructure the required fields from the response
+        const {
+          evaluation_category,
+          improvement,
+          actionable_steps,
+          strengths,
+          overall_reason,
+          summary,
+        } = data;
+
+        setResult({
+          evaluation_category,
+          improvement,
+          actionable_steps,
+          strengths,
+          overall_reason,
+          summary,
+        });
+      } catch (error) {
+        console.error("Error fetching result:", error);
+        toast.error(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResult();
   }, [id, authenticated, navigate]);
 
   if (!authenticated) {
-    return null; // Prevent any flash of content before redirect
+    return null; // Prevent flash of content before redirect
   }
 
   if (loading) {
@@ -61,18 +92,11 @@ function ViewResult() {
     );
   }
 
-  // Determine the status color
-  const getStatusColor = () => {
-    switch (result.status.toLowerCase()) {
-      case 'shortlisted':
-        return 'bg-green-600';
-      case 'rejected':
-        return 'bg-red-600';
-      case 'pending':
-        return 'bg-yellow-600';
-      default:
-        return 'bg-blue-600';
-    }
+  // Define dynamic styles for the evaluation category
+  const categoryStyles = {
+    shortlisted: "bg-green-600 border-green-700",
+    rejected: "bg-red-600 border-red-700",
+    revisit: "bg-yellow-600 border-yellow-700"
   };
 
   return (
@@ -89,37 +113,76 @@ function ViewResult() {
         </div>
 
         <div className="bg-gray-800 rounded-lg p-8 shadow-lg">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-semibold">Your Submission Result</h2>
-            <span className={`${getStatusColor()} px-4 py-2 rounded-full text-white font-medium`}>
-              {result.status}
-            </span>
+          <div className="mb-8">
+            <div className="flex items-center mb-4">
+              <span
+                className={`border px-4 py-2 rounded-full text-white font-medium mr-4 ${
+                  categoryStyles[result.evaluation_category] || "bg-gray-700 border-gray-600"
+                }`}
+              >
+                {result.evaluation_category}
+              </span>
+              <h2 className="text-2xl font-semibold">Your Submission Result</h2>
+            </div>
+            <div className="h-1 w-full bg-gray-700"></div>
           </div>
 
           <div className="space-y-6">
             <div>
               <h3 className="text-xl font-semibold mb-2 text-cyan-400">Reasons</h3>
-              <p className="bg-gray-700 p-4 rounded-lg">{result.reasons}</p>
+              <p className="bg-gray-700 p-4 rounded-lg">{result.overall_reason}</p>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold mb-2 text-cyan-400">Strengths</h3>
-              <p className="bg-gray-700 p-4 rounded-lg">{result.strength}</p>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold mb-2 text-cyan-400">Areas for Improvement</h3>
-              <p className="bg-gray-700 p-4 rounded-lg">{result.area_of_improvement}</p>
+              <h3 className="text-xl font-semibold mb-2 text-cyan-400">Improvements</h3>
+              {result.improvement && result.improvement.length > 0 ? (
+                <ul className="bg-gray-700 p-4 rounded-lg list-disc pl-10">
+                  {result.improvement.map((item, index) => (
+                    <li key={index} className="mb-2">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="bg-gray-700 p-4 rounded-lg">No improvements provided.</p>
+              )}
             </div>
 
             <div>
               <h3 className="text-xl font-semibold mb-2 text-cyan-400">Actionable Steps</h3>
-              <p className="bg-gray-700 p-4 rounded-lg">{result.actionable_steps}</p>
+              {result.actionable_steps && result.actionable_steps.length > 0 ? (
+                <ul className="bg-gray-700 p-4 rounded-lg list-disc pl-10">
+                  {result.actionable_steps.map((item, index) => (
+                    <li key={index} className="mb-2">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="bg-gray-700 p-4 rounded-lg">No actionable steps provided.</p>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-2 text-cyan-400">Strengths</h3>
+              {result.strengths && result.strengths.length > 0 ? (
+                <ul className="bg-gray-700 p-4 rounded-lg list-disc pl-10">
+                  {result.strengths.map((item, index) => (
+                    <li key={index} className="mb-2">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="bg-gray-700 p-4 rounded-lg">No strengths provided.</p>
+              )}
             </div>
 
             <div>
               <h3 className="text-xl font-semibold mb-2 text-cyan-400">Summary</h3>
-              <p className="bg-gray-700 p-4 rounded-lg">{result.summary}</p>
+              {result.summary && result.summary.length > 0 ? (
+                <ul className="bg-gray-700 p-4 rounded-lg list-disc pl-10">
+                  {result.summary.map((item, index) => (
+                    <li key={index} className="mb-2">{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="bg-gray-700 p-4 rounded-lg">No summary provided.</p>
+              )}
             </div>
           </div>
         </div>

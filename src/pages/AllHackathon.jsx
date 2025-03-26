@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaCheckCircle, FaTimesCircle, FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { isAuthenticated } from '../utils/Cookie';
 import { toast } from 'react-toastify';
+import { ClipLoader } from "react-spinners";
 
 function AllHackathonPages() {
   const navigate = useNavigate();
   const authenticated = isAuthenticated();
   const [loading, setLoading] = useState(true);
   const [hackathons, setHackathons] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [inviteCode, setInviteCode] = useState("");
-  const [passkey, setPasskey] = useState("");
   const [notification, setNotification] = useState({ show: false, success: false, message: "" });
 
-  // Auto-hide notification after 5 seconds
   useEffect(() => {
     let timer;
     if (notification.show) {
@@ -26,193 +23,85 @@ function AllHackathonPages() {
     return () => clearTimeout(timer);
   }, [notification]);
 
-  // Fetch hackathons from backend
-  useEffect(() => {
-    const fetchHackathons = async () => {
-      setLoading(true);  // Start loading
-      try {
-        const response = await fetch("https://team13-aajv.onrender.com/api/student/hackathons");
-        const data = await response.json();
-        if (data.hackathons) {
-          setHackathons(data.hackathons);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (error) {
-        console.error("Error fetching hackathons:", error);
-        toast.error("Failed to load hackathons");
-      } finally {
-        setLoading(false);  // Stop loading
+  const fetchHackathons = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://team13-aajv.onrender.com/api/students/hackathons");
+      const data = await response.json();
+      if (data.hackathons) {
+        setHackathons(data.hackathons);
+      } else {
+        throw new Error("Invalid data format");
       }
-    };
-  
+    } catch (error) {
+      console.error("Error fetching hackathons:", error);
+      toast.error("Failed to load hackathons");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchHackathons();
   }, []);
 
-  const handleJoinWithCode = () => {
-    if (!authenticated) {
-      setNotification({
-        show: true,
-        success: false,
-        message: "Please sign in to join a hackathon"
-      });
-      navigate('/auth', { state: { from: '/all-hackathons' } });
-      return;
-    }
-
-    if (inviteCode.trim() === "") {
-      toast.error("Please enter an invite code");
-      return;
-    }
-    setShowModal(true);
-  };
-
-  const handleSubmitPasskey = async (e) => {
-    e.preventDefault();
-    setShowModal(false);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("https://team13-aajv.onrender.com/api/student/join", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          invite_code: inviteCode,
-          passkey: passkey
-        })
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setNotification({
-          show: true,
-          success: true,
-          message: "Successfully joined the hackathon!"
-        });
-      } else {
-        setNotification({
-          show: true,
-          success: false,
-          message: "Failed to join hackathon."
-        });
-      }
-    } catch (error) {
-      setNotification({
-        show: true,
-        success: false,
-        message: "An error occurred. Please try again."
-      });
-    } finally {
-      setInviteCode("");
-      setPasskey("");
-    }
-  };
-
-  // Render loader if still loading data
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-900">
-        <div className="loader"></div>
+        <ClipLoader color="#00BFFF" size={60} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Main Content */}
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold mb-4 md:mb-0">All Hackathons</h1>
-          <div className="flex items-center space-x-2 w-full md:w-auto">
-            <input
-              type="text"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-              placeholder="Enter invite code"
-              className="p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-cyan-500 w-full md:w-auto"
-            />
-            <button
-              className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer whitespace-nowrap"
-              onClick={handleJoinWithCode}
-            >
-              Join with Code
-            </button>
-          </div>
-        </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-gray-900 text-white"
+    >
+      <div className="container mx-auto py-12 px-4">
+        <motion.h1 
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-4xl font-bold mb-12 text-center text-cyan-400"
+        >
+          Discover Hackathons
+        </motion.h1>
 
-        {/* Grid of Hackathon Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {hackathons.map((hackathon) => (
-            <div
+        <motion.div 
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8"
+        >
+          {hackathons.map((hackathon, index) => (
+            <motion.div
               key={hackathon._id}
-              className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              onClick={() => navigate(`/view-hackathon/${hackathon._id}`)}
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.1 * index }}
+              className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
             >
-              <div className="p-6 flex flex-col h-full">
-                <div className="flex-grow">
-                  <h3 className="text-xl font-semibold text-cyan-400 mb-2">{hackathon.title}</h3>
-                  <p className="text-gray-400">
-                    {hackathon.description.length > 120
-                      ? `${hackathon.description.slice(0, 120)}...`
-                      : hackathon.description}
-                  </p>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button
-                    className="flex items-center space-x-1 bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1 rounded transition cursor-pointer"
-                    onClick={() => navigate(`/view-hackathon/${hackathon._id}`)}
-                  >
-                    <span>View</span>
-                    <FaEye className="ml-1" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Passkey Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold text-cyan-400 mb-4">Enter Passkey</h2>
-            <p className="text-gray-300 mb-4">
-              Please enter the passkey for hackathon with invite code: <span className="font-bold">{inviteCode}</span>
-            </p>
-            <form onSubmit={handleSubmitPasskey}>
-              <div className="mb-4">
-                <input
-                  type="password"
-                  value={passkey}
-                  onChange={(e) => setPasskey(e.target.value)}
-                  className="w-full p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Enter passkey"
-                  required
+              <div className="w-full aspect-square">
+                <img 
+                  src={hackathon.image_url} 
+                  alt={hackathon.title} 
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition cursor-pointer"
-                  onClick={() => setShowModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded transition cursor-pointer"
-                >
-                  Join Hackathon
-                </button>
+              <div className="p-4">
+                <h3 className="text-xl font-semibold text-cyan-400 text-center">
+                  {hackathon.title}
+                </h3>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
 
-      {/* Slide-in Notification */}
       <AnimatePresence>
         {notification.show && (
           <motion.div
@@ -233,14 +122,14 @@ function AllHackathonPages() {
             <div className="flex-grow text-white">{notification.message}</div>
             <button
               onClick={() => setNotification({ ...notification, show: false })}
-              className="text-white hover:text-gray-200"
+              className="text-white hover:text-gray-300"
             >
               <FaTimes />
             </button>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
