@@ -6,17 +6,19 @@ import { isAuthenticated } from '../utils/Cookie';
 import { toast } from 'react-toastify';
 import { ClipLoader } from "react-spinners";
 
+
 function AllHackathonPages() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [hackathons, setHackathons] = useState([]);
   const [notification, setNotification] = useState({ show: false, success: false, message: "" });
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchHackathons = async () => {
       setLoading(true);
       try {
-        const response = await fetch("https://team13-aajv.onrender.com/api/students/hackathons");
+        const response = await fetch(`${backendUrl}/api/students/hackathons`);
         const data = await response.json();
         if (data.hackathons) {
           setHackathons(data.hackathons.map(h => ({

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAuthCookie } from '../utils/Cookie';
 import { ClipLoader } from "react-spinners";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function MyHackathon() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ function MyHackathon() {
   const fetchHackathons = async () => {
     try {
       const token = getAuthCookie("authToken");
-      const response = await fetch('https://team13-aajv.onrender.com/api/students/myhackathons', {
+      const response = await fetch(`${backendUrl}/api/students/myhackathons`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -59,7 +60,7 @@ function MyHackathon() {
     setJoining(true);
     try {
       const token = getAuthCookie("authToken");
-      const response = await fetch("https://team13-aajv.onrender.com/api/students/join", {
+      const response = await fetch(`${backendUrl}/api/students/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +104,7 @@ function MyHackathon() {
     setJoining(true);
     try {
       const token = getAuthCookie("authToken");
-      const response = await fetch("https://team13-aajv.onrender.com/api/students/join", {
+      const response = await fetch(`${backendUrl}/api/students/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

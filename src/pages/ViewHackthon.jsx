@@ -9,6 +9,7 @@ import {
 import { isAuthenticated, getAuthCookie } from '../utils/Cookie';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function ViewHackathon() {
     const { id } = useParams();
@@ -35,7 +36,7 @@ function ViewHackathon() {
                     const token = getAuthCookie("authToken");
                     headers["Authorization"] = `Bearer ${token}`;
                 }
-                const response = await fetch(`https://team13-aajv.onrender.com/api/students/hackathons/${id}`, { headers });
+                const response = await fetch(`${backendUrl}/api/students/hackathons/${id}`, { headers });
                 if (!response.ok) throw new Error("Failed to fetch hackathon details");
                 const data = await response.json();
                 setHackathon(data);
@@ -99,7 +100,7 @@ function ViewHackathon() {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${getAuthCookie("authToken")}`
             };
-            const response = await fetch('https://team13-aajv.onrender.com/api/students/join', {
+            const response = await fetch(`${backendUrl}/api/students/join`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ invite_code: hackathon.invite_code })
@@ -147,7 +148,7 @@ function ViewHackathon() {
 
         try {
             const headers = { "Authorization": `Bearer ${getAuthCookie("authToken")}` };
-            const response = await fetch('https://team13-aajv.onrender.com/api/students/submit', {
+            const response = await fetch(`${backendUrl}/api/students/submit`, {
                 method: 'POST',
                 headers,
                 body: formData,

@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaRegCheckCircle, FaRegLightbulb, FaChartLine, FaMedal, FaFileAlt } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function ViewResult() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ function ViewResult() {
       setLoading(true);
       try {
         const token = getAuthCookie("authToken");
-        const response = await fetch(`https://team13-aajv.onrender.com/api/students/results/${id}`, {
+        const response = await fetch(`${backendUrl}/api/students/results/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

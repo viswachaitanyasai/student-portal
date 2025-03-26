@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 // Cookie management functions
 export const setAuthCookie = (key, value, options = {}) => {
@@ -21,7 +22,7 @@ export const removeAuthCookie = (key) => {
 // Authentication functions
 export const loginUser = async ({ email, password }) => {
   // const response = await fetch(`${BACKEND_URL}/api/student/login`, {
-  const response = await fetch(`https://team13-aajv.onrender.com/api/students/login`, {
+  const response = await fetch(`${backendUrl}/api/students/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -41,7 +42,7 @@ export const loginUser = async ({ email, password }) => {
 
 export const registerUser = async ({ name, email, password, grade, district, state }) => {
   // const response = await fetch(`${BACKEND_URL}/api/student/register`, {
-  const response = await fetch(`https://team13-aajv.onrender.com/api/students/register`, {
+  const response = await fetch(`${backendUrl}/api/students/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password, grade, district, state }),
