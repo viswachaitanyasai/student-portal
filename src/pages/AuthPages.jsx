@@ -20,10 +20,8 @@ function AuthPages() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Store the current height before toggling
   const toggleAuthMode = () => {
     if (containerRef.current) {
-      // Store current height if switching to login
       if (!isLogin) {
         setContainerHeight(`${containerRef.current.offsetHeight}px`);
       }
@@ -38,11 +36,10 @@ function AuthPages() {
     setState("");
   };
 
-  // Reset height to auto after animation completes
   useEffect(() => {
     const timer = setTimeout(() => {
       setContainerHeight("auto");
-    }, 500); // Match this to your animation duration
+    }, 500);
     
     return () => clearTimeout(timer);
   }, [isLogin]);
@@ -52,19 +49,13 @@ function AuthPages() {
     setLoading(true);
     try {
       if (isLogin) {
-        // Use the login function from Cookie.jsx
         const response = await loginUser({ email, password });
         toast.success("Login successful!");
-        
-        // Navigate to the return URL or all-hackathons page
         const from = location.state?.from?.pathname || "/all-hackathons";
         navigate(from);
       } else {
-        // Use the register function from Cookie.jsx
         await registerUser({ name, email, password, grade, district, state });
         toast.success("Registration successful!");
-        
-        // Switch to login view
         setIsLogin(true);
       }
     } catch (error) {
@@ -72,6 +63,11 @@ function AuthPages() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSampleAccount = () => {
+    setEmail('student1@gmail.com');
+    setPassword('pass1');
   };
 
   return (
@@ -204,6 +200,16 @@ function AuthPages() {
             >
               {loading ? "Processing..." : isLogin ? "Login" : "Register"}
             </button>
+
+            {isLogin && (
+              <button
+                type="button"
+                onClick={handleSampleAccount}
+                className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition mt-2"
+              >
+                Use Sample Account
+              </button>
+            )}
           </form>
           
           <p className="text-center text-gray-400 mt-4">
